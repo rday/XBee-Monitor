@@ -24,7 +24,7 @@
 
 #include "monitor.h"
 
-Monitor::Monitor(SerialPort* p, wxTextCtrl* hex, wxListCtrl* cmd)
+Monitor::Monitor(SerialPort* p, wxTextCtrl* hex, ttListCtrl* cmd)
 {
    port = p;
    hexBox = hex;
@@ -65,8 +65,8 @@ void Monitor::Notify()
 
        wxString d(tmp, wxConvUTF8);
        hexBox->AppendText(d);
-       free(data);
-       free(tmp);
+       //free(data);
+       //free(tmp);
    }
 }
 
@@ -127,15 +127,18 @@ void Monitor::GetPacket(char* data, size_t len)
                 break; 
         }
     }
+printf("exit getpacket\n");
 }
 
 void Monitor::Process()
 {
     char buf[72], buf2[50];
     wxString colText;
+    wxString tooltip;
     int tmp;
     wxListItem item;
 
+printf("Enter process\n");
     colText.Printf(wxT("%02X"), packet[0] & 0x0ff);
     packetList->InsertItem(0, colText);
     packetList->GetItem(item);
@@ -188,6 +191,8 @@ void Monitor::Process()
            colText.Clear();
            colText.Printf("AT%c%c", packet[2]&0x0ff, packet[3]&0x0ff);
            packetList->SetItem(0,3,colText);
+	   tooltip.Printf("AT Response");
+	   packetList->SetTooltip(0,3,tooltip);
            colText.Clear();
 
            if( packet[4] == 0x0 ) data.Printf("OK: ");
@@ -201,6 +206,8 @@ void Monitor::Process()
               colText.Printf(wxT("%02X%02X%02X%02X"),
                     buf[0]&0x0ff,buf[1]&0x0ff,buf[2]&0x0ff,buf[3]&0x0ff);
               packetList->SetItem(0, 4, colText);
+	      tooltip.Printf("High/Low Address");
+	      packetList->SetTooltip(0,3,tooltip);
            }
 
            if( packet[2] == 'N' && packet[3] == 'D' )
@@ -209,12 +216,16 @@ void Monitor::Process()
               tmp = (tmp&0x0ff00) + packet[6];
               colText.Printf(wxT("%X/%02X%02x"), tmp, packet[17] & 0x0ff, packet[18] & 0x0ff);
               packetList->SetItem(0, 2, colText);
+	      tooltip.Printf("Network Address");
+	      packetList->SetTooltip(0,2,tooltip);
 
               memcpy(buf, &packet[7], 8);
               colText.Printf(wxT("%02X%02X%02X%02X%02X%02X%02X%02X"),
                     buf[0]&0x0ff,buf[1]&0x0ff,buf[2]&0x0ff,buf[3]&0x0ff,
                     buf[4]&0x0ff,buf[5]&0x0ff,buf[6]&0x0ff,buf[7]&0x0ff);
               packetList->SetItem(0, 4, colText);
+	      tooltip.Printf("Source Radio Address");
+	      packetList->SetTooltip(0,4,tooltip);
 
               if( packet[19] == 0 )
                   colText.Printf("Type:Coordinator");
@@ -229,5 +240,6 @@ void Monitor::Process()
            packetList->SetItem(0,5,data);
     }
 
+printf("exit process\n");
     bzero(packet, packetsize);
 }

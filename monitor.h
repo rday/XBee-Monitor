@@ -43,7 +43,7 @@
 class Monitor: public wxTimer
 {
 private:
-   wxListCtrl* packetList;
+   ttListCtrl* packetList;
    SerialPort* port;
    wxTextCtrl* hexBox;
    int state;
@@ -54,7 +54,7 @@ private:
    void Process();//char* data, size_t len);
 
 public:
-   Monitor(SerialPort* p, wxTextCtrl* hex, wxListCtrl* cmd);
+   Monitor(SerialPort* p, wxTextCtrl* hex, ttListCtrl* cmd);
    ~Monitor();
    virtual void Notify();
 };
